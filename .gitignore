@@ -1,0 +1,23 @@
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+.uv-cache/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Local data outputs
+data/raw/
+data/processed/
+reports/
