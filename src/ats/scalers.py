@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from typing import Optional
+
 import numpy as np
 import pandas as pd
 
@@ -31,7 +33,7 @@ def centered_min_max_scale(
 def rolling_zscore(
     series: pd.Series,
     window: int,
-    min_periods: int | None = None,
+    min_periods: Optional[int] = None,
     ddof: int = 0,
     epsilon: float = 1e-12,
 ) -> pd.Series:
@@ -46,7 +48,7 @@ def rolling_zscore(
 def rolling_robust_score(
     series: pd.Series,
     window: int,
-    min_periods: int | None = None,
+    min_periods: Optional[int] = None,
     lower_quantile: float = 0.25,
     upper_quantile: float = 0.75,
     epsilon: float = 1e-12,

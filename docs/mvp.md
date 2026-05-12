@@ -94,6 +94,19 @@ longest indicator window * 3 + evaluation period
 
 최종 점수는 가중합 후 `-100 ~ +100` 범위로 클리핑합니다.
 
+초기 신호 변환 규칙은 다음과 같습니다.
+
+| Source | Signal Rule |
+| --- | --- |
+| `ma_slope_*` | rolling z-score를 `2.0`으로 나눈 뒤 `-1 ~ +1` 클리핑 |
+| `rsi_*` | `(RSI - 50) / 50` 후 클리핑 |
+| `macd_histogram_*` | rolling z-score를 `2.0`으로 나눈 뒤 클리핑 |
+| `atr_14` | 최근 ATR 평균 대비 확장 비율을 `0 ~ +1`로 변환 |
+| `bb_percent_b_*` | `(percent_b - 0.5) / 0.5` 후 클리핑 |
+| `obv` | OBV 1기간 변화량의 rolling robust score를 `2.0`으로 나눈 뒤 클리핑 |
+
+캔들 비율은 아직 직접 신호화하지 않습니다. 단일 캔들 모양은 맥락 의존성이 커서, 추세/변동성/거래량 신호와 함께 별도 패턴 규칙으로 다룹니다.
+
 ## Out Of Scope
 
 다음 항목은 MVP 이후로 미룹니다.

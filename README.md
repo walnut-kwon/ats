@@ -53,6 +53,25 @@ uv run pytest
 uv run ats --help
 ```
 
+샘플 CSV를 전체 파이프라인으로 분석하려면 다음을 실행합니다.
+
+```bash
+uv run ats analyze data/sample/sample_ohlcv.csv --tail 5
+```
+
+기본 출력은 `date`, `close`, `score`, 주요 `signal_*` 컬럼만 보여주는 요약입니다.
+전체 지표와 신호 컬럼을 터미널에 출력하려면 `--full`을 사용합니다.
+
+```bash
+uv run ats analyze data/sample/sample_ohlcv.csv --tail 5 --full
+```
+
+분석 결과 전체를 CSV로 저장하려면 `--output`을 사용합니다.
+
+```bash
+uv run ats analyze data/sample/sample_ohlcv.csv --output data/sample/analysis.csv
+```
+
 ## Development Direction
 
 1. CSV 로더와 OHLCV 컬럼 검증을 안정화합니다.

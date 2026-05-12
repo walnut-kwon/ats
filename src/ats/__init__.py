@@ -4,6 +4,7 @@ __all__ = [
     "backtest",
     "data",
     "indicators",
+    "pipeline",
     "scalers",
     "scoring",
     "signals",
