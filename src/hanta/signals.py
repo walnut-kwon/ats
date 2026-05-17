@@ -52,6 +52,17 @@ def atr_expansion_signal(
     return signal.clip(lower=0, upper=1)
 
 
+def ma_alignment_signal(
+    fast_ma: pd.Series,
+    medium_ma: pd.Series,
+    slow_ma: pd.Series,
+) -> pd.Series:
+    """Convert moving-average ordering to a pairwise alignment signal."""
+    fast_medium = _pairwise_order_signal(fast_ma, medium_ma)
+    medium_slow = _pairwise_order_signal(medium_ma, slow_ma)
+    return (fast_medium + medium_slow) / 2
+
+
 def add_signals(
     df: pd.DataFrame,
     zscore_window: int = 30,
@@ -68,6 +79,7 @@ def add_signals(
     )
     _add_rsi_signals(result, _matching_columns(result, prefixes=("rsi_",)))
     _add_percent_b_signals(result, _matching_columns(result, prefixes=("bb_percent_b_",)))
+    _add_ma_alignment_signal(result, fast=5, medium=20, slow=60)
 
     if "atr_14" in result.columns:
         result["signal_atr_expansion_14"] = atr_expansion_signal(
@@ -103,5 +115,24 @@ def _add_percent_b_signals(df: pd.DataFrame, columns: Iterable[str]) -> None:
         df[f"signal_{column}"] = percent_b_signal(df[column])
 
 
+def _add_ma_alignment_signal(df: pd.DataFrame, fast: int, medium: int, slow: int) -> None:
+    columns = (f"sma_{fast}", f"sma_{medium}", f"sma_{slow}")
+    if not all(column in df.columns for column in columns):
+        return
+
+    df[f"signal_ma_alignment_{fast}_{medium}_{slow}"] = ma_alignment_signal(
+        df[columns[0]],
+        df[columns[1]],
+        df[columns[2]],
+    )
+
+
 def _matching_columns(df: pd.DataFrame, prefixes: tuple[str, ...]) -> list[str]:
     return [column for column in df.columns if column.startswith(prefixes)]
+
+
+def _pairwise_order_signal(left: pd.Series, right: pd.Series) -> pd.Series:
+    signal = pd.Series(0.0, index=left.index)
+    signal = signal.mask(left > right, 1.0)
+    signal = signal.mask(left < right, -1.0)
+    return signal.mask(left.isna() | right.isna())

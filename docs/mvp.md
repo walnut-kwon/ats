@@ -98,7 +98,7 @@ longest indicator window * 3 + evaluation period
 
 | Group | Weight | Signals |
 | --- | ---: | --- |
-| Trend | 0.35 | `signal_ma_slope_*` |
+| Trend | 0.35 | `signal_ma_slope_*`, `signal_ma_alignment_*` |
 | Momentum | 0.35 | `signal_rsi_*`, `signal_macd_histogram_*` |
 | Volatility | 0.15 | `signal_atr_expansion_*`, `signal_bb_percent_b_*` |
 | Volume | 0.15 | `signal_obv_change` |
@@ -108,6 +108,7 @@ longest indicator window * 3 + evaluation period
 | Source | Signal Rule |
 | --- | --- |
 | `ma_slope_*` | rolling z-score를 `2.0`으로 나눈 뒤 `-1 ~ +1` 클리핑 |
+| `sma_5`, `sma_20`, `sma_60` | pairwise alignment로 `signal_ma_alignment_5_20_60` 생성 |
 | `rsi_*` | `(RSI - 50) / 50` 후 클리핑 |
 | `macd_histogram_*` | rolling z-score를 `2.0`으로 나눈 뒤 클리핑 |
 | `atr_14` | 최근 ATR 평균 대비 확장 비율을 `0 ~ +1`로 변환 |

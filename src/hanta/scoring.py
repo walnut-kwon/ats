@@ -5,7 +5,7 @@ from typing import List, Mapping, Optional, Sequence
 import pandas as pd
 
 DEFAULT_SIGNAL_GROUPS = {
-    "trend": ("signal_ma_slope_",),
+    "trend": ("signal_ma_slope_", "signal_ma_alignment_"),
     "momentum": ("signal_rsi_", "signal_macd_histogram_"),
     "volatility": ("signal_atr_expansion_", "signal_bb_percent_b_"),
     "volume": ("signal_obv_change",),

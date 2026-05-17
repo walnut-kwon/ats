@@ -6,6 +6,7 @@ import pytest
 from hanta.signals import (
     add_signals,
     atr_expansion_signal,
+    ma_alignment_signal,
     percent_b_signal,
     robust_change_signal,
     rsi_signal,
@@ -60,9 +61,33 @@ def test_atr_expansion_signal_starts_at_neutral_and_caps_at_one() -> None:
     assert result.iloc[2:].round(4).tolist() == [0.0, 0.5714, 1.0]
 
 
+def test_ma_alignment_signal_scores_pairwise_ordering() -> None:
+    fast = pd.Series([3.0, 3.0, 1.0, 2.0])
+    medium = pd.Series([2.0, 1.0, 2.0, 2.0])
+    slow = pd.Series([1.0, 2.0, 3.0, 1.0])
+
+    result = ma_alignment_signal(fast, medium, slow)
+
+    assert result.tolist() == [1.0, 0.0, -1.0, 0.5]
+
+
+def test_ma_alignment_signal_preserves_nan_when_any_ma_is_missing() -> None:
+    fast = pd.Series([3.0, float("nan")])
+    medium = pd.Series([2.0, 2.0])
+    slow = pd.Series([1.0, 1.0])
+
+    result = ma_alignment_signal(fast, medium, slow)
+
+    assert result.iloc[0] == 1.0
+    assert math.isnan(result.iloc[1])
+
+
 def test_add_signals_adds_default_signal_columns() -> None:
     df = pd.DataFrame(
         {
+            "sma_5": [5.0] * 40,
+            "sma_20": [4.0] * 40,
+            "sma_60": [3.0] * 40,
             "ma_slope_5": list(range(1, 41)),
             "rsi_14": [50.0] * 40,
             "macd_histogram_12_26_9": list(range(-20, 20)),
@@ -77,11 +102,13 @@ def test_add_signals_adds_default_signal_columns() -> None:
     assert "signal_ma_slope_5" in result.columns
     assert "signal_rsi_14" in result.columns
     assert "signal_macd_histogram_12_26_9" in result.columns
+    assert "signal_ma_alignment_5_20_60" in result.columns
     assert "signal_atr_expansion_14" in result.columns
     assert "signal_bb_percent_b_20_2" in result.columns
     assert "signal_obv_change" in result.columns
     assert result["signal_rsi_14"].dropna().eq(0.0).all()
     assert result["signal_bb_percent_b_20_2"].dropna().eq(0.0).all()
+    assert result["signal_ma_alignment_5_20_60"].dropna().eq(1.0).all()
 
 
 def test_zscore_signal_rejects_invalid_scale() -> None:

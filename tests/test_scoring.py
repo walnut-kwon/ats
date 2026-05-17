@@ -22,6 +22,7 @@ def test_add_score_adds_group_scores_and_weighted_score() -> None:
         {
             "signal_ma_slope_5": [1.0, -1.0],
             "signal_ma_slope_20": [0.5, -0.5],
+            "signal_ma_alignment_5_20_60": [1.0, -1.0],
             "signal_rsi_14": [0.0, 0.0],
             "signal_macd_histogram_12_26_9": [1.0, -1.0],
             "signal_atr_expansion_14": [1.0, 1.0],
@@ -32,11 +33,11 @@ def test_add_score_adds_group_scores_and_weighted_score() -> None:
 
     result = add_score(df)
 
-    assert result["score_trend"].tolist() == [0.75, -0.75]
+    assert result["score_trend"].tolist() == [0.8333333333333334, -0.8333333333333334]
     assert result["score_momentum"].tolist() == [0.5, -0.5]
     assert result["score_volatility"].tolist() == [0.5, 0.5]
     assert result["score_volume"].tolist() == [0.5, -0.5]
-    assert result["score"].round(2).tolist() == [58.75, -43.75]
+    assert result["score"].round(2).tolist() == [61.67, -46.67]
 
 
 def test_add_score_renormalizes_weights_when_group_score_is_nan() -> None:

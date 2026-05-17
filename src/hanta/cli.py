@@ -13,6 +13,7 @@ SUMMARY_COLUMNS = (
     "score_momentum",
     "score_volatility",
     "score_volume",
+    "signal_ma_alignment_5_20_60",
     "signal_ma_slope_20",
     "signal_rsi_14",
     "signal_macd_histogram_12_26_9",
