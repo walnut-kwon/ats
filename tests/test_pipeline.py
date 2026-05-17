@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from hanta.cli import summarize_analysis
+from hanta.cli import summarize_analysis, summarize_backtest_rows
 from hanta.pipeline import analyze_csv, analyze_ohlcv
 
 
@@ -57,4 +57,35 @@ def test_summarize_analysis_returns_human_readable_columns() -> None:
         "signal_atr_expansion_14",
         "signal_bb_percent_b_20_2",
         "signal_obv_change",
+    ]
+
+
+def test_summarize_backtest_rows_returns_human_readable_columns() -> None:
+    df = pd.DataFrame(
+        {
+            "date": ["2025-01-01"],
+            "close": [100.0],
+            "score": [30.0],
+            "target_position": [0.3],
+            "position": [0.0],
+            "asset_return": [0.0],
+            "strategy_return": [0.0],
+            "cumulative_strategy_return": [0.0],
+            "drawdown": [0.0],
+            "extra": [1.0],
+        }
+    )
+
+    summary = summarize_backtest_rows(df)
+
+    assert summary.columns.tolist() == [
+        "date",
+        "close",
+        "score",
+        "target_position",
+        "position",
+        "asset_return",
+        "strategy_return",
+        "cumulative_strategy_return",
+        "drawdown",
     ]

@@ -73,6 +73,12 @@ uv run hanta analyze data/sample/sample_ohlcv.csv --tail 5 --full
 uv run hanta analyze data/sample/sample_ohlcv.csv --output data/sample/analysis.csv
 ```
 
+기본 long-only 백테스트를 실행하려면 다음을 사용합니다.
+
+```bash
+uv run hanta backtest data/sample/sample_ohlcv.csv --tail 5
+```
+
 ## Development Direction
 
 1. CSV 로더와 OHLCV 컬럼 검증을 안정화합니다.
