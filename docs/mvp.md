@@ -92,7 +92,16 @@ longest indicator window * 3 + evaluation period
 | `-0.5` | 약한 매도 |
 | `-1.0` | 강한 매도 |
 
-최종 점수는 가중합 후 `-100 ~ +100` 범위로 클리핑합니다.
+최종 점수는 그룹별 신호 평균을 가중합한 뒤 `-100 ~ +100` 범위로 클리핑합니다. 특정 그룹의 값이 `NaN`인 행은 사용 가능한 그룹 가중치만으로 재정규화합니다.
+
+초기 그룹 가중치는 다음과 같습니다.
+
+| Group | Weight | Signals |
+| --- | ---: | --- |
+| Trend | 0.35 | `signal_ma_slope_*` |
+| Momentum | 0.35 | `signal_rsi_*`, `signal_macd_histogram_*` |
+| Volatility | 0.15 | `signal_atr_expansion_*`, `signal_bb_percent_b_*` |
+| Volume | 0.15 | `signal_obv_change` |
 
 초기 신호 변환 규칙은 다음과 같습니다.
 

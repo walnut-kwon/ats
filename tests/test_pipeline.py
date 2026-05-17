@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from ats.cli import summarize_analysis
-from ats.pipeline import analyze_csv, analyze_ohlcv
+from hanta.cli import summarize_analysis
+from hanta.pipeline import analyze_csv, analyze_ohlcv
 
 
 def test_analyze_ohlcv_runs_full_pipeline() -> None:
@@ -46,6 +46,10 @@ def test_summarize_analysis_returns_human_readable_columns() -> None:
         "date",
         "close",
         "score",
+        "score_trend",
+        "score_momentum",
+        "score_volatility",
+        "score_volume",
         "signal_ma_slope_20",
         "signal_rsi_14",
         "signal_macd_histogram_12_26_9",

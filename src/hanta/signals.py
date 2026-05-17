@@ -4,7 +4,7 @@ from typing import Iterable
 
 import pandas as pd
 
-from ats.scalers import centered_min_max_scale, clip_signal, rolling_robust_score, rolling_zscore
+from hanta.scalers import centered_min_max_scale, clip_signal, rolling_robust_score, rolling_zscore
 
 
 def rsi_signal(series: pd.Series) -> pd.Series:

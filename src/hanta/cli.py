@@ -3,12 +3,16 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from ats.pipeline import analyze_csv
+from hanta.pipeline import analyze_csv
 
 SUMMARY_COLUMNS = (
     "date",
     "close",
     "score",
+    "score_trend",
+    "score_momentum",
+    "score_volatility",
+    "score_volume",
     "signal_ma_slope_20",
     "signal_rsi_14",
     "signal_macd_histogram_12_26_9",
@@ -19,7 +23,7 @@ SUMMARY_COLUMNS = (
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="ATS research toolkit")
+    parser = argparse.ArgumentParser(description="Hanta research toolkit")
     parser.add_argument("--version", action="store_true", help="show package version")
     subparsers = parser.add_subparsers(dest="command")
 
@@ -50,7 +54,7 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.version:
-        from ats import __version__
+        from hanta import __version__
 
         print(__version__)
         return

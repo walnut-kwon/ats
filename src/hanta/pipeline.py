@@ -5,10 +5,10 @@ from typing import Optional, Union
 
 import pandas as pd
 
-from ats.data import load_ohlcv_csv
-from ats.indicators import add_indicators
-from ats.scoring import add_score
-from ats.signals import add_signals
+from hanta.data import load_ohlcv_csv
+from hanta.indicators import add_indicators
+from hanta.scoring import add_score
+from hanta.signals import add_signals
 
 
 def analyze_ohlcv(df: pd.DataFrame) -> pd.DataFrame:

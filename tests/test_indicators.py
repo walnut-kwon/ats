@@ -3,7 +3,7 @@ import math
 import pandas as pd
 import pytest
 
-from ats.indicators import (
+from hanta.indicators import (
     add_candle_indicators,
     add_indicators,
     add_momentum_indicators,

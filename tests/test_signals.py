@@ -3,7 +3,7 @@ import math
 import pandas as pd
 import pytest
 
-from ats.signals import (
+from hanta.signals import (
     add_signals,
     atr_expansion_signal,
     percent_b_signal,

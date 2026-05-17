@@ -1,4 +1,4 @@
-# ATS
+# Hanta
 
 개인 리서치용 자동 매매 신호 실험 프로젝트입니다.
 
@@ -20,15 +20,16 @@
 ## Project Layout
 
 ```text
-ats/
+hanta/
   docs/
     architecture.md
     mvp.md
+    roadmap.md
   data/
     sample/
   notebooks/
   src/
-    ats/
+    hanta/
       data.py
       indicators.py
       scalers.py
@@ -50,26 +51,26 @@ uv run pytest
 패키지를 직접 실행할 때는 다음처럼 시작합니다.
 
 ```bash
-uv run ats --help
+uv run hanta --help
 ```
 
 샘플 CSV를 전체 파이프라인으로 분석하려면 다음을 실행합니다.
 
 ```bash
-uv run ats analyze data/sample/sample_ohlcv.csv --tail 5
+uv run hanta analyze data/sample/sample_ohlcv.csv --tail 5
 ```
 
-기본 출력은 `date`, `close`, `score`, 주요 `signal_*` 컬럼만 보여주는 요약입니다.
+기본 출력은 `date`, `close`, 최종 `score`, 그룹별 `score_*`, 주요 `signal_*` 컬럼만 보여주는 요약입니다.
 전체 지표와 신호 컬럼을 터미널에 출력하려면 `--full`을 사용합니다.
 
 ```bash
-uv run ats analyze data/sample/sample_ohlcv.csv --tail 5 --full
+uv run hanta analyze data/sample/sample_ohlcv.csv --tail 5 --full
 ```
 
 분석 결과 전체를 CSV로 저장하려면 `--output`을 사용합니다.
 
 ```bash
-uv run ats analyze data/sample/sample_ohlcv.csv --output data/sample/analysis.csv
+uv run hanta analyze data/sample/sample_ohlcv.csv --output data/sample/analysis.csv
 ```
 
 ## Development Direction

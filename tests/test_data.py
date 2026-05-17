@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from ats.data import validate_ohlcv_columns
+from hanta.data import validate_ohlcv_columns
 
 
 def test_validate_ohlcv_columns_accepts_required_columns() -> None:

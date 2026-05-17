@@ -3,7 +3,7 @@ import math
 import pandas as pd
 import pytest
 
-from ats.scalers import (
+from hanta.scalers import (
     centered_min_max_scale,
     clip_signal,
     min_max_scale,
