@@ -60,7 +60,9 @@ uv run hanta --help
 uv run hanta analyze data/sample/sample_ohlcv.csv --tail 5
 ```
 
-기본 출력은 `date`, `close`, 최종 `score`, 그룹별 `score_*`, 주요 `signal_*` 컬럼만 보여주는 요약입니다.
+기본 출력은 `date`, `close`, `is_warmup`, 최종 `score`, 주요 `signal_*` 컬럼만 보여주는 요약입니다.
+초기 warm-up 표시는 [src/hanta/config.py](/Users/walnut/Documents/ats/src/hanta/config.py)의 `AnalysisConfig`에서 관리합니다.
+
 전체 지표와 신호 컬럼을 터미널에 출력하려면 `--full`을 사용합니다.
 
 ```bash

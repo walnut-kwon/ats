@@ -2,6 +2,7 @@
 
 __all__ = [
     "backtest",
+    "config",
     "data",
     "indicators",
     "pipeline",

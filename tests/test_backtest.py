@@ -1,6 +1,7 @@
 import pandas as pd
 import pytest
 
+from hanta.config import BacktestConfig
 from hanta.backtest import (
     add_backtest_columns,
     add_forward_return,
@@ -46,6 +47,22 @@ def test_add_backtest_columns_uses_prior_day_position() -> None:
         0.067,
     ]
     assert result["drawdown"].round(4).tolist() == [0.0, 0.0, -0.03, 0.0]
+
+
+def test_add_backtest_columns_accepts_backtest_config() -> None:
+    df = pd.DataFrame(
+        {
+            "close": [100.0, 110.0],
+            "score": [0.0, 50.0],
+        }
+    )
+
+    result = add_backtest_columns(
+        df,
+        config=BacktestConfig(threshold=50.0, threshold_position=0.5),
+    )
+
+    assert result["target_position"].tolist() == [0.0, 0.5]
 
 
 def test_summarize_backtest_returns_compact_metrics() -> None:

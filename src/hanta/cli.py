@@ -9,11 +9,8 @@ from hanta.pipeline import analyze_csv
 SUMMARY_COLUMNS = (
     "date",
     "close",
+    "is_warmup",
     "score",
-    "score_trend",
-    "score_momentum",
-    "score_volatility",
-    "score_volume",
     "signal_ma_alignment_5_20_60",
     "signal_ma_slope_20",
     "signal_rsi_14",
@@ -57,24 +54,6 @@ def build_parser() -> argparse.ArgumentParser:
         default=5,
         help="number of trailing rows to print",
     )
-    backtest_parser.add_argument(
-        "--threshold",
-        type=float,
-        default=30.0,
-        help="score where position reaches threshold-position",
-    )
-    backtest_parser.add_argument(
-        "--threshold-position",
-        type=float,
-        default=0.3,
-        help="target position at threshold score",
-    )
-    backtest_parser.add_argument(
-        "--max-position",
-        type=float,
-        default=1.0,
-        help="maximum long exposure",
-    )
     return parser
 
 
@@ -97,9 +76,6 @@ def main() -> None:
     if args.command == "backtest":
         result = add_backtest_columns(
             analyze_csv(args.input),
-            threshold=args.threshold,
-            threshold_position=args.threshold_position,
-            max_position=args.max_position,
         )
         print(_format_backtest_summary(summarize_backtest(result)))
         print()
@@ -120,6 +96,7 @@ def summarize_backtest_rows(df):
     columns = [
         "date",
         "close",
+        "is_warmup",
         "score",
         "target_position",
         "position",

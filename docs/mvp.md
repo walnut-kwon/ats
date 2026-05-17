@@ -92,16 +92,21 @@ longest indicator window * 3 + evaluation period
 | `-0.5` | 약한 매도 |
 | `-1.0` | 강한 매도 |
 
-최종 점수는 그룹별 신호 평균을 가중합한 뒤 `-100 ~ +100` 범위로 클리핑합니다. 특정 그룹의 값이 `NaN`인 행은 사용 가능한 그룹 가중치만으로 재정규화합니다.
+최종 점수는 개별 `signal_*` 컬럼 가중합으로 계산한 뒤 `-100 ~ +100` 범위로 클리핑합니다. 값이 `NaN`인 신호는 해당 행에서 제외하고, 사용 가능한 신호 가중치만으로 재정규화합니다.
 
-초기 그룹 가중치는 다음과 같습니다.
+초기 개별 신호 가중치는 다음과 같습니다.
 
-| Group | Weight | Signals |
-| --- | ---: | --- |
-| Trend | 0.35 | `signal_ma_slope_*`, `signal_ma_alignment_*` |
-| Momentum | 0.35 | `signal_rsi_*`, `signal_macd_histogram_*` |
-| Volatility | 0.15 | `signal_atr_expansion_*`, `signal_bb_percent_b_*` |
-| Volume | 0.15 | `signal_obv_change` |
+| Signal | Weight |
+| --- | ---: |
+| `signal_ma_alignment_5_20_60` | 0.15 |
+| `signal_ma_slope_5` | 0.08 |
+| `signal_ma_slope_20` | 0.12 |
+| `signal_ma_slope_60` | 0.10 |
+| `signal_rsi_14` | 0.18 |
+| `signal_macd_histogram_12_26_9` | 0.17 |
+| `signal_atr_expansion_14` | 0.08 |
+| `signal_bb_percent_b_20_2` | 0.07 |
+| `signal_obv_change` | 0.05 |
 
 초기 신호 변환 규칙은 다음과 같습니다.
 

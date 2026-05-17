@@ -1,7 +1,8 @@
 import pandas as pd
 import pytest
 
-from hanta.scoring import DEFAULT_GROUP_WEIGHTS, add_score
+from hanta.config import DEFAULT_SIGNAL_WEIGHTS
+from hanta.scoring import add_score
 
 
 def test_add_score_uses_explicit_signal_columns_as_simple_average() -> None:
@@ -17,7 +18,7 @@ def test_add_score_uses_explicit_signal_columns_as_simple_average() -> None:
     assert result["score"].tolist() == [75.0, -75.0]
 
 
-def test_add_score_adds_group_scores_and_weighted_score() -> None:
+def test_add_score_uses_weighted_signal_score() -> None:
     df = pd.DataFrame(
         {
             "signal_ma_slope_5": [1.0, -1.0],
@@ -33,11 +34,11 @@ def test_add_score_adds_group_scores_and_weighted_score() -> None:
 
     result = add_score(df)
 
-    assert result["score_trend"].tolist() == [0.8333333333333334, -0.8333333333333334]
-    assert result["score_momentum"].tolist() == [0.5, -0.5]
-    assert result["score_volatility"].tolist() == [0.5, 0.5]
-    assert result["score_volume"].tolist() == [0.5, -0.5]
-    assert result["score"].round(2).tolist() == [61.67, -46.67]
+    assert "score_trend" not in result.columns
+    assert "score_momentum" not in result.columns
+    assert "score_volatility" not in result.columns
+    assert "score_volume" not in result.columns
+    assert result["score"].round(2).tolist() == [62.78, -45.0]
 
 
 def test_add_score_renormalizes_weights_when_group_score_is_nan() -> None:
@@ -79,14 +80,14 @@ def test_add_score_accepts_custom_group_weights() -> None:
 
     result = add_score(
         df,
-        group_weights={**DEFAULT_GROUP_WEIGHTS, "trend": 0.8, "momentum": 0.2},
+        signal_weights={"signal_ma_slope_20": 0.8, "signal_rsi_14": 0.2},
     )
 
     assert result["score"].tolist() == [80.0]
 
 
-def test_add_score_rejects_invalid_group_weight() -> None:
+def test_add_score_rejects_invalid_signal_weight() -> None:
     df = pd.DataFrame({"signal_ma_slope_20": [1.0]})
 
-    with pytest.raises(ValueError, match="group weight must be greater than 0"):
-        add_score(df, group_weights={**DEFAULT_GROUP_WEIGHTS, "trend": 0.0})
+    with pytest.raises(ValueError, match="signal weight must be greater than 0"):
+        add_score(df, signal_weights={**DEFAULT_SIGNAL_WEIGHTS, "signal_ma_slope_20": 0.0})

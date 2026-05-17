@@ -4,74 +4,39 @@ from typing import List, Mapping, Optional, Sequence
 
 import pandas as pd
 
-DEFAULT_SIGNAL_GROUPS = {
-    "trend": ("signal_ma_slope_", "signal_ma_alignment_"),
-    "momentum": ("signal_rsi_", "signal_macd_histogram_"),
-    "volatility": ("signal_atr_expansion_", "signal_bb_percent_b_"),
-    "volume": ("signal_obv_change",),
-}
-
-DEFAULT_GROUP_WEIGHTS = {
-    "trend": 0.35,
-    "momentum": 0.35,
-    "volatility": 0.15,
-    "volume": 0.15,
-}
+from hanta.config import DEFAULT_SIGNAL_WEIGHTS
 
 
 def add_score(
     df: pd.DataFrame,
     signal_columns: Optional[List[str]] = None,
-    signal_groups: Mapping[str, Sequence[str]] = DEFAULT_SIGNAL_GROUPS,
-    group_weights: Mapping[str, float] = DEFAULT_GROUP_WEIGHTS,
+    signal_weights: Mapping[str, float] = DEFAULT_SIGNAL_WEIGHTS,
 ) -> pd.DataFrame:
-    """Add group scores and a final -100 to +100 weighted score column."""
+    """Add a final -100 to +100 weighted score."""
     result = df.copy()
 
     if signal_columns is not None:
         result["score"] = _simple_signal_score(result, signal_columns)
         return result
 
-    group_score_columns = _add_group_scores(result, signal_groups)
-    if not group_score_columns:
-        all_signal_columns = [column for column in result.columns if column.startswith("signal_")]
-        result["score"] = _simple_signal_score(result, all_signal_columns)
+    _validate_signal_weights(signal_weights)
+    weighted_columns = [column for column in signal_weights if column in result.columns]
+    if weighted_columns:
+        result["score"] = _weighted_signal_score(result, signal_weights, weighted_columns)
         return result
 
-    _validate_group_weights(group_weights)
-    result["score"] = _weighted_group_score(result, group_score_columns, group_weights)
+    all_signal_columns = [column for column in result.columns if column.startswith("signal_")]
+    result["score"] = _simple_signal_score(result, all_signal_columns)
     return result
 
 
-def _add_group_scores(
+def _weighted_signal_score(
     df: pd.DataFrame,
-    signal_groups: Mapping[str, Sequence[str]],
-) -> list[str]:
-    group_score_columns = []
-    for group, prefixes in signal_groups.items():
-        columns = _matching_columns(df, prefixes)
-        if not columns:
-            continue
-
-        score_column = f"score_{group}"
-        df[score_column] = df[columns].mean(axis=1)
-        group_score_columns.append(score_column)
-
-    return group_score_columns
-
-
-def _weighted_group_score(
-    df: pd.DataFrame,
-    group_score_columns: Sequence[str],
-    group_weights: Mapping[str, float],
+    signal_weights: Mapping[str, float],
+    signal_columns: Sequence[str],
 ) -> pd.Series:
-    score_frame = df[list(group_score_columns)]
-    weights = pd.Series(
-        {
-            score_column: group_weights[score_column.removeprefix("score_")]
-            for score_column in group_score_columns
-        }
-    )
+    score_frame = df[list(signal_columns)]
+    weights = pd.Series({column: signal_weights[column] for column in signal_columns})
     weighted_sum = score_frame.mul(weights).sum(axis=1, min_count=1)
     available_weight = score_frame.notna().mul(weights).sum(axis=1)
     return (weighted_sum / available_weight).mul(100).clip(-100, 100)
@@ -82,13 +47,7 @@ def _simple_signal_score(df: pd.DataFrame, signal_columns: Sequence[str]) -> pd.
         return pd.Series(0.0, index=df.index)
 
     return df[list(signal_columns)].mean(axis=1).mul(100).clip(-100, 100)
-
-
-def _matching_columns(df: pd.DataFrame, prefixes: Sequence[str]) -> list[str]:
-    return [column for column in df.columns if column.startswith(tuple(prefixes))]
-
-
-def _validate_group_weights(group_weights: Mapping[str, float]) -> None:
-    for group, weight in group_weights.items():
+def _validate_signal_weights(signal_weights: Mapping[str, float]) -> None:
+    for signal, weight in signal_weights.items():
         if weight <= 0:
-            raise ValueError(f"group weight must be greater than 0: {group}")
+            raise ValueError(f"signal weight must be greater than 0: {signal}")

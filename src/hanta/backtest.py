@@ -1,8 +1,10 @@
 from __future__ import annotations
 
-from typing import Dict
+from typing import Dict, Optional
 
 import pandas as pd
+
+from hanta.config import DEFAULT_BACKTEST_CONFIG, BacktestConfig
 
 
 def add_forward_return(df: pd.DataFrame, periods: int = 1) -> pd.DataFrame:
@@ -42,20 +44,18 @@ def add_backtest_columns(
     df: pd.DataFrame,
     score_column: str = "score",
     price_column: str = "close",
-    floor: float = 0.0,
-    threshold: float = 30.0,
-    threshold_position: float = 0.3,
-    max_position: float = 1.0,
+    config: Optional[BacktestConfig] = None,
 ) -> pd.DataFrame:
     """Add long-only backtest columns using score-derived target positions."""
+    config = config or DEFAULT_BACKTEST_CONFIG
     _validate_required_columns(df, (score_column, price_column))
     result = df.copy()
     result["target_position"] = thresholded_linear_position(
         result[score_column],
-        floor=floor,
-        threshold=threshold,
-        threshold_position=threshold_position,
-        max_position=max_position,
+        floor=config.floor,
+        threshold=config.threshold,
+        threshold_position=config.threshold_position,
+        max_position=config.max_position,
     )
     result["position"] = result["target_position"].shift(1).fillna(0.0)
     result["asset_return"] = result[price_column].pct_change().fillna(0.0)
