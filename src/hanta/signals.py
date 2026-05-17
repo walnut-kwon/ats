@@ -63,6 +63,25 @@ def ma_alignment_signal(
     return (fast_medium + medium_slow) / 2
 
 
+def ma_crossover_signal(
+    fast_ma: pd.Series,
+    slow_ma: pd.Series,
+    decay_factor: float = 0.5,
+    min_abs_value: float = 0.01,
+) -> pd.Series:
+    """Return a decayed +1/-1 signal after MA crossover events."""
+    _validate_decay(decay_factor, min_abs_value)
+    golden_cross = (fast_ma.shift(1) <= slow_ma.shift(1)) & (fast_ma > slow_ma)
+    dead_cross = (fast_ma.shift(1) >= slow_ma.shift(1)) & (fast_ma < slow_ma)
+    missing = fast_ma.isna() | slow_ma.isna() | fast_ma.shift(1).isna() | slow_ma.shift(1).isna()
+
+    events = pd.Series(0.0, index=fast_ma.index)
+    events = events.mask(golden_cross, 1.0)
+    events = events.mask(dead_cross, -1.0)
+    events = events.mask(missing)
+    return _decay_event_signal(events, decay_factor=decay_factor, min_abs_value=min_abs_value)
+
+
 def add_signals(
     df: pd.DataFrame,
     zscore_window: int = 30,
@@ -80,6 +99,8 @@ def add_signals(
     _add_rsi_signals(result, _matching_columns(result, prefixes=("rsi_",)))
     _add_percent_b_signals(result, _matching_columns(result, prefixes=("bb_percent_b_",)))
     _add_ma_alignment_signal(result, fast=5, medium=20, slow=60)
+    _add_ma_crossover_signal(result, fast=5, slow=20)
+    _add_ma_crossover_signal(result, fast=20, slow=60)
 
     if "atr_14" in result.columns:
         result["signal_atr_expansion_14"] = atr_expansion_signal(
@@ -127,6 +148,17 @@ def _add_ma_alignment_signal(df: pd.DataFrame, fast: int, medium: int, slow: int
     )
 
 
+def _add_ma_crossover_signal(df: pd.DataFrame, fast: int, slow: int) -> None:
+    columns = (f"sma_{fast}", f"sma_{slow}")
+    if not all(column in df.columns for column in columns):
+        return
+
+    df[f"signal_ma_crossover_{fast}_{slow}"] = ma_crossover_signal(
+        df[columns[0]],
+        df[columns[1]],
+    )
+
+
 def _matching_columns(df: pd.DataFrame, prefixes: tuple[str, ...]) -> list[str]:
     return [column for column in df.columns if column.startswith(prefixes)]
 
@@ -136,3 +168,36 @@ def _pairwise_order_signal(left: pd.Series, right: pd.Series) -> pd.Series:
     signal = signal.mask(left > right, 1.0)
     signal = signal.mask(left < right, -1.0)
     return signal.mask(left.isna() | right.isna())
+
+
+def _decay_event_signal(
+    events: pd.Series,
+    decay_factor: float,
+    min_abs_value: float,
+) -> pd.Series:
+    values = []
+    previous = 0.0
+    for event in events:
+        if pd.isna(event):
+            values.append(float("nan"))
+            previous = 0.0
+            continue
+
+        if event != 0:
+            current = event
+        else:
+            current = previous * decay_factor
+            if abs(current) < min_abs_value:
+                current = 0.0
+
+        values.append(current)
+        previous = current
+
+    return pd.Series(values, index=events.index)
+
+
+def _validate_decay(decay_factor: float, min_abs_value: float) -> None:
+    if not 0 < decay_factor < 1:
+        raise ValueError("decay_factor must be between 0 and 1")
+    if min_abs_value < 0:
+        raise ValueError("min_abs_value must be greater than or equal to 0")

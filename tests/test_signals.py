@@ -7,6 +7,7 @@ from hanta.signals import (
     add_signals,
     atr_expansion_signal,
     ma_alignment_signal,
+    ma_crossover_signal,
     percent_b_signal,
     robust_change_signal,
     rsi_signal,
@@ -82,6 +83,35 @@ def test_ma_alignment_signal_preserves_nan_when_any_ma_is_missing() -> None:
     assert math.isnan(result.iloc[1])
 
 
+def test_ma_crossover_signal_marks_events_with_exponential_decay() -> None:
+    fast = pd.Series([1.0, 2.0, 3.0, 3.0, 2.0, 1.0, 2.0])
+    slow = pd.Series([2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0])
+
+    result = ma_crossover_signal(fast, slow)
+
+    assert math.isnan(result.iloc[0])
+    assert result.iloc[1:].tolist() == [0.0, 1.0, 0.5, 0.25, -1.0, -0.5]
+
+
+def test_ma_crossover_signal_preserves_nan_when_current_or_previous_ma_is_missing() -> None:
+    fast = pd.Series([1.0, float("nan"), 3.0])
+    slow = pd.Series([2.0, 2.0, 2.0])
+
+    result = ma_crossover_signal(fast, slow)
+
+    assert math.isnan(result.iloc[0])
+    assert math.isnan(result.iloc[1])
+    assert math.isnan(result.iloc[2])
+
+
+def test_ma_crossover_signal_rejects_invalid_decay() -> None:
+    fast = pd.Series([1.0, 2.0])
+    slow = pd.Series([2.0, 1.0])
+
+    with pytest.raises(ValueError, match="decay_factor must be between 0 and 1"):
+        ma_crossover_signal(fast, slow, decay_factor=1.0)
+
+
 def test_add_signals_adds_default_signal_columns() -> None:
     df = pd.DataFrame(
         {
@@ -103,12 +133,15 @@ def test_add_signals_adds_default_signal_columns() -> None:
     assert "signal_rsi_14" in result.columns
     assert "signal_macd_histogram_12_26_9" in result.columns
     assert "signal_ma_alignment_5_20_60" in result.columns
+    assert "signal_ma_crossover_5_20" in result.columns
+    assert "signal_ma_crossover_20_60" in result.columns
     assert "signal_atr_expansion_14" in result.columns
     assert "signal_bb_percent_b_20_2" in result.columns
     assert "signal_obv_change" in result.columns
     assert result["signal_rsi_14"].dropna().eq(0.0).all()
     assert result["signal_bb_percent_b_20_2"].dropna().eq(0.0).all()
     assert result["signal_ma_alignment_5_20_60"].dropna().eq(1.0).all()
+    assert result["signal_ma_crossover_5_20"].dropna().eq(0.0).all()
 
 
 def test_zscore_signal_rejects_invalid_scale() -> None:

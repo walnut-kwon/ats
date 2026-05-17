@@ -114,6 +114,7 @@ longest indicator window * 3 + evaluation period
 | --- | --- |
 | `ma_slope_*` | rolling z-score를 `2.0`으로 나눈 뒤 `-1 ~ +1` 클리핑 |
 | `sma_5`, `sma_20`, `sma_60` | pairwise alignment로 `signal_ma_alignment_5_20_60` 생성 |
+| `sma_5`, `sma_20`, `sma_60` | crossover event를 exponential decay로 `signal_ma_crossover_5_20`, `signal_ma_crossover_20_60` 생성 |
 | `rsi_*` | `(RSI - 50) / 50` 후 클리핑 |
 | `macd_histogram_*` | rolling z-score를 `2.0`으로 나눈 뒤 클리핑 |
 | `atr_14` | 최근 ATR 평균 대비 확장 비율을 `0 ~ +1`로 변환 |
@@ -121,6 +122,8 @@ longest indicator window * 3 + evaluation period
 | `obv` | OBV 1기간 변화량의 rolling robust score를 `2.0`으로 나눈 뒤 클리핑 |
 
 캔들 비율은 아직 직접 신호화하지 않습니다. 단일 캔들 모양은 맥락 의존성이 커서, 추세/변동성/거래량 신호와 함께 별도 패턴 규칙으로 다룹니다.
+
+MA crossover 신호는 `decay_factor = 0.5`로 이벤트 이후 영향이 점차 줄어들게 생성하지만, 기본 score 가중치에는 포함하지 않습니다. 필요하면 `ScoringConfig.signal_weights`에 명시적으로 추가합니다.
 
 ## Out Of Scope
 
